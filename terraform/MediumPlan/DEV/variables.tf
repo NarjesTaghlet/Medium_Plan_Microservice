@@ -102,13 +102,7 @@ variable "disk_name" {
      }  
 
 
-/*  variable "github_pat" {
-  description = "GitHub Personal Access Token for CodeBuild"
-  type        = string
-  sensitive   = true
- default = "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"
-}
-*/
+
 
 
 
