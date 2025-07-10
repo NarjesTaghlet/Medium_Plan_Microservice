@@ -43,6 +43,7 @@ export class Deployment {
   @CreateDateColumn({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
+    precision: 6,  // Ajouter la précision
   })
   createdAt: Date;
 
