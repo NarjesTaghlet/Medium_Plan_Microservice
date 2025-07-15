@@ -91,7 +91,7 @@ private readonly cloudflareApiToken: string;
     async fetchTempCredentials(userId: number) {
   try {
     // Utilise une variable d'environnement pour l'URL du user-service
-    const userServiceUrl = process.env.USER_SERVICE_URL || 'http://localhost:3030';
+const userServiceUrl = this.configService.get<string>('USER_SERVICE_URL', 'http://localhost:3030');
     const { data } = await firstValueFrom(
       this.httpService.post(`${userServiceUrl}/user/${userId}/connect-aws`, {})
     );
