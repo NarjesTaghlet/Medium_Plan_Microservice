@@ -188,6 +188,26 @@ export class MediumController {
       throw new HttpException(`Failed to check PAT status: ${error.message}`, HttpStatus.NOT_FOUND);
     }
   }
+
+  
+  @UseGuards(TokenGuard)
+  @Post('pat-status-save')
+  async getPatStatusSave(@Request() req,@Body() body :any) {
+    const userId = req.user?.userId;
+    console.log('userId (getPatStatus):', userId);
+
+    if (!userId) {
+      throw new HttpException('Invalid user ID', HttpStatus.BAD_REQUEST);
+    }
+
+    try {
+      const status = await this.mediumService.getPatStatuss(userId,body.pat);
+      console.log('Returning PAT status:', status);
+      return status;
+    } catch (error) {
+      throw new HttpException(`Failed to check PAT status: ${error.message}`, HttpStatus.NOT_FOUND);
+    }
+  }
 }
 
 

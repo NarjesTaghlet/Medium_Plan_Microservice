@@ -1,6 +1,5 @@
 import * as AWS from 'aws-sdk';
 import { spawn } from 'child_process';
-import { mkdirSync } from 'fs';
 import {  resolve } from 'path';
 import { Repository } from 'typeorm';
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
@@ -1634,6 +1633,8 @@ async getPatStatus(userId: number): Promise<{
     const secret = await client.send(new GetSecretValueCommand({ SecretId: secretId }));
     const pat = secret.SecretString;
 
+    console.log(pat)
+
     // 4. Validate with GitHub API
     const response = await firstValueFrom(
       this.httpService.get('https://api.github.com/user', {
@@ -1683,6 +1684,71 @@ async getPatStatus(userId: number): Promise<{
   }
 }
 
+async getPatStatuss(userId: number,pat:string): Promise<{ 
+  exists: boolean; 
+  valid?: boolean;
+  expiry?: string;
+  isValid: boolean;
+}> {
+
+  try {
+    // 1. Get AWS credentials
+   // 1. Get temporary credentials from user service
+        const data = await this.fetchTempCredentials(userId);
+
+         const { accessKeyId, secretAccessKey, sessionToken } = data;
+
+  
+    console.log("pat",pat)
+
+    // 4. Validate with GitHub API
+    const response = await firstValueFrom(
+      this.httpService.get('https://api.github.com/user', {
+        headers: { Authorization: `token ${pat}` },
+      }),
+    );
+
+    // 5. Extract and verify expiration
+    const expiryHeader = response.headers['github-authentication-token-expiration'];
+    const expiryDate = new Date(expiryHeader.replace(' UTC', '') + 'Z');
+    const currentDate = new Date();
+    const isExpired = expiryDate <= currentDate;
+
+    // 6. Final validity check
+    const isValid = !isExpired && response.status === 200;
+
+    return {
+      exists: true,
+      valid: true,
+      expiry: expiryDate.toISOString(),
+      isValid
+    };
+
+  } catch (error) {
+    if (error.name === 'ResourceNotFoundException') {
+      return { exists: false, isValid: false };
+    }
+    
+    // Handle API validation failures
+    if (error.response?.status === 401) {
+      return {
+        exists: true,
+        valid: false,
+        expiry: undefined,
+        isValid: false
+      };
+    }
+
+    return {
+      exists: true,
+      valid: false,
+      expiry: undefined,
+      isValid: false
+    };
+  } finally {
+ 
+  }
+}
 
 
 

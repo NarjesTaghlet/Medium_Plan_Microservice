@@ -18,7 +18,7 @@ import { RestoredbModule } from './restoredb/restoredb.module';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
-        console.log('SECRET_KEY in TypeOrm config:', process.env.SECRET_KEY); // Debug
+       // console.log('SECRET_KEY in TypeOrm config:', process.env.SECRET_KEY); // Debug
         return {
           type: 'mysql',
     //host: 'localhost',
