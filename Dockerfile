@@ -5,11 +5,13 @@ WORKDIR /app
 
 COPY package*.json ./
 
+RUN npm i --save-dev @types/node --legacy-peer-deps 
+
 RUN npm install -g @nestjs/cli --legacy-peer-deps 
 
 
 # Ajoute les dépendances nécessaires à la compilation native
-RUN  npm install --production --legacy-peer-deps \
+RUN  npm install --legacy-peer-deps \
     && npm cache clean --force
 
 
