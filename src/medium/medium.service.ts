@@ -39,7 +39,6 @@ import { join } from 'path';
 import * as path from 'path';
 import logger from 'src/utils/logger';
 import { execSync } from 'child_process';
-import { AxiosResponse , AxiosError} from 'axios';
 import { AwsCredentialsResponse } from './interfaces/aws-credentials.interface';
 import * as dotenv from 'dotenv' ;
 import * as crypto from 'crypto';
@@ -50,6 +49,7 @@ import { HttpService } from '@nestjs/axios';
 
 
 import { HttpException,HttpStatus } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 // Define the execPromise utility for running Terraform commands
 const execPromise = promisify(exec);
 
@@ -62,16 +62,16 @@ const execAsync = promisify(exec);
 export class MediumService {
   private readonly githubToken: string;
   private readonly payloadFile = 'github_payload.json';
-
+ 
   private readonly githubApiUrl = 'https://api.github.com';
   private readonly orgName ='NarjesTg' ;
   private readonly templaterepo = 'Template-Basic'
   //return the real github token 
-  private readonly webhookSecret = process.env.WEBHOOK_SECRET; // Webhook secret
+ // private readonly webhookSecret = process.env.WEBHOOK_SECRET; // Webhook secret
  // private readonly webhookUrl = ' https://ddf0-2c0f-f698-4097-5566-4560-c960-b6f0-e696.ngrok-free.app/api/webhooks/github'; // Replace with your ngrok URL
   private readonly webhookUrl = 'https://3e1d-2c0f-f698-4097-5566-4560-c960-b6f0-e696.ngrok-free.app/deployment/github'; // Replace with your ngrok URL
-  private readonly cloudflareZoneId = process.env.cloudflare_zone_id;
-  private readonly cloudflareApiToken = process.env.CLOUDFLARE_API_TOKEN;
+  private readonly cloudflareZoneId: string;
+private readonly cloudflareApiToken: string;
   private readonly userServiceUrl = 'http://localhost:3030'
 
     constructor(
@@ -79,9 +79,12 @@ export class MediumService {
        private deploymentRepository: Repository<Deployment>,
       
         private httpService: HttpService,
+        private configService : ConfigService
         
     ){
-      this.githubToken = process.env.GITHUB_PAT;
+     // this.githubToken = process.env.GITHUB_PAT;
+     this.cloudflareZoneId = this.configService.get<string>('CLOUDFLARE_ZONE_ID');
+  this.cloudflareApiToken = this.configService.get<string>('CLOUDFLARE_API_TOKEN');
 
     }
 
@@ -192,10 +195,13 @@ export class MediumService {
 
 
     async deployInfrastructureAndSetupGitHub(deployment: Deployment) {
+
+
       try {
-        
          // Step 4: Configuration GitHub
-         const githubResult = await this.setupUserDeployment(deployment.userId, deployment.siteName );
+        const userGithubToken = await  this.fetchGitHubPat(deployment.userId)
+
+         const githubResult = await this.setupUserDeployment(deployment.userId, deployment.siteName,userGithubToken);
          deployment.userRepoUrl = githubResult.userRepoUrl;
         // deployment.orgRepoUrl = githubResult.orgRepoUrl;
          await this.deploymentRepository.save(deployment);
@@ -239,10 +245,10 @@ export class MediumService {
     async setupUserDeployment(
        userId: number,
       siteName: string,
+      userGithubToken : string 
     ): Promise<{ userRepoUrl: string }> {
       const repoName = `drupal-${siteName}`;
-         const userGithubToken = process.env.userGithubToken
-        console.log('token0',userGithubToken)
+      console.log('token0',userGithubToken)
     
        const user = await this.getUserById(userId);
         console.log('helou',user)
@@ -312,7 +318,7 @@ export class MediumService {
       ).catch((error) => console.warn(`Branch protection not set: ${error.message}`));
     }
   
-    async addWebhookToUserRepo(userGithubToken: string, userRepo: string) {
+  /*  async addWebhookToUserRepo(userGithubToken: string, userRepo: string) {
       try {
         const response = await firstValueFrom(
           this.httpService.post(
@@ -336,13 +342,13 @@ export class MediumService {
         throw new Error(`Webhook setup failed: ${error.message}`);
       }
     }
-  
-    verifySignature(signature: string, payload: any): boolean {
+  */
+ /*   verifySignature(signature: string, payload: any): boolean {
       const hmac = crypto.createHmac('sha256', this.webhookSecret);
       const digest = `sha256=${hmac.update(JSON.stringify(payload)).digest('hex')}`;
       return signature === digest;
     }
-  
+  */
     async mirrorRepo(userRepoUrl: string, branch: string, orgRepoName: string) {
       const timestamp = Date.now();
       const localPath = `/tmp/mirror-${timestamp}`;
@@ -1166,7 +1172,7 @@ try {
         }
     
         // Step 15: Delete GitHub repositories
-        await this.deleteGitHubRepositories(userId, siteName);
+     //   await this.deleteGitHubRepositories(userId, siteName);
     
         // Step 16: Delete Cloudflare DNS record
         const cloudflareDomain = deployment.cloudflareDomain;
@@ -1183,6 +1189,35 @@ try {
       } finally {
         if (secretsManagerClient) secretsManagerClient.destroy();
       }
+    }
+
+    async deleteGitHubRepositories(userId: number, siteName: string): Promise<void> {
+      const repoName = `drupal-${userId}-${siteName}`;
+      logger.info(`Deleting GitHub repositories for ${repoName}`);
+  
+      try {
+        const user = await this.getUserById(userId);
+  
+        if (!user || !user.githubToken) {
+          throw new Error('User not found or GitHub token missing');
+        }
+  
+        // Delete organization repository
+        await firstValueFrom(
+          this.httpService.delete(`${this.githubApiUrl}/repos/${this.orgName}/${repoName}`, {
+            headers: this.getAuthHeaders(),
+          })
+        );
+        logger.info(`Deleted organization repository: ${this.orgName}/${repoName}`);
+      } catch (error) {
+        if (error.response?.status === 404) {
+          logger.warn(`Repository ${repoName} not found, skipping deletion`);
+        } else {
+          logger.error(`Failed to delete GitHub repositories: ${error.message}`);
+          throw error;
+        }
+      }
+
     }
 
 
@@ -1350,34 +1385,7 @@ try {
     }
   
     
-    async deleteGitHubRepositories(userId: number, siteName: string): Promise<void> {
-      const repoName = `drupal-${userId}-${siteName}`;
-      logger.info(`Deleting GitHub repositories for ${repoName}`);
-  
-      try {
-        const user = await this.getUserById(userId);
-  
-        if (!user || !user.githubToken) {
-          throw new Error('User not found or GitHub token missing');
-        }
-  
-        // Delete organization repository
-        await firstValueFrom(
-          this.httpService.delete(`${this.githubApiUrl}/repos/${this.orgName}/${repoName}`, {
-            headers: this.getAuthHeaders(),
-          })
-        );
-        logger.info(`Deleted organization repository: ${this.orgName}/${repoName}`);
-      } catch (error) {
-        if (error.response?.status === 404) {
-          logger.warn(`Repository ${repoName} not found, skipping deletion`);
-        } else {
-          logger.error(`Failed to delete GitHub repositories: ${error.message}`);
-          throw error;
-        }
-      }
-
-    }
+    
 
     async cleanupScheduledSecrets(userId: number, siteName: string): Promise<void> {
       const secretsManager = new AWS.SecretsManager({

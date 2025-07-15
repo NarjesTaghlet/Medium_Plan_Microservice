@@ -87,7 +87,37 @@ export class MediumController {
       return this.mediumService.isSiteNameUnique(siteName);
     }
   
-    
+     @Post('github-pat/:userId')
+  async fetchGitHubPat(@Param('userId') userId: string): Promise<{ pat: string }> {
+    try {
+      const numericUserId = parseInt(userId, 10);
+      
+      // Validation basique de l'userId
+      if (isNaN(numericUserId)) {
+        throw new HttpException('Invalid user ID format', HttpStatus.BAD_REQUEST);
+      }
+
+      // Logique de récupération du PAT
+      const pat = await this.mediumService.fetchGitHubPat(numericUserId);
+      
+      return { pat };
+    } catch (error) {
+      console.log(`Failed to fetch PAT for user ${userId}: ${error.message}`);
+
+      // Gestion des erreurs spécifiques
+      switch (error.name) {
+        case 'ResourceNotFoundException':
+          throw new HttpException('PAT not found', HttpStatus.NOT_FOUND);
+        case 'InvalidSignatureException':
+          throw new HttpException('Invalid AWS credentials', HttpStatus.UNAUTHORIZED);
+        default:
+          throw new HttpException(
+            'Failed to retrieve GitHub PAT',
+            HttpStatus.INTERNAL_SERVER_ERROR
+          );
+      }
+    }
+  }
  
   @UseGuards(TokenGuard)
   @Post('final')

@@ -15,7 +15,6 @@ import {
   ModifyDBInstanceCommand
 } from '@aws-sdk/client-rds';
 import { HttpService } from '@nestjs/axios';
-import { AxiosResponse , AxiosError} from 'axios';
 import { AwsCredentialsResponse } from 'src/medium/interfaces/aws-credentials.interface';
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
 import {  GetSecretValueCommand,PutSecretValueCommand,SecretsManagerClient,UpdateSecretCommand,CreateSecretCommand} from '@aws-sdk/client-secrets-manager';
