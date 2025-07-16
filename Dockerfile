@@ -30,6 +30,9 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
+RUN ls node_modules/axios && ls node_modules/@nestjs/axios
+
+
 # Copie uniquement les fichiers de dépendances
 COPY package*.json ./
 
