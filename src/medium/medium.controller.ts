@@ -1,9 +1,7 @@
 import { Controller,BadRequestException } from '@nestjs/common';
 import { Body } from '@nestjs/common';
 import { Post,Get , Delete } from '@nestjs/common';
-import { DeployInfrastructureDto } from './dtos/deployinterface.dto';
 import { MediumService } from './medium.service';
-import { HttpService } from '@nestjs/axios';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Request } from '@nestjs/common';
 import { UseGuards } from '@nestjs/common';
@@ -11,8 +9,7 @@ import { TokenGuard } from './Guards/token-guard';
 import { Param } from '@nestjs/common';
 import { Deployment } from './entities/deployment.entity';
 import { Req } from '@nestjs/common';
-import { Res } from '@nestjs/common';
-import { Response } from 'express';
+
 
 
 
@@ -87,7 +84,7 @@ export class MediumController {
       return this.mediumService.isSiteNameUnique(siteName);
     }
   
-     @Post('github-pat/:userId')
+  @Post('github-pat/:userId')
   async fetchGitHubPat(@Param('userId') userId: string): Promise<{ pat: string }> {
     try {
       const numericUserId = parseInt(userId, 10);
