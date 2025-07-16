@@ -25,39 +25,28 @@
 
 
 # Étape de build
-# Étape 1 : Construction
-FROM node:18-alpine AS builder
-
-WORKDIR /app
-
-RUN ls node_modules/axios && ls node_modules/@nestjs/axios
-
-
-# Copie uniquement les fichiers de dépendances
-COPY package*.json ./
-
-# Installation des dépendances
-RUN npm install --legacy-peer-deps
-
-# Copie le reste du code
-COPY . .
-
-# Build NestJS
-RUN npm run build
-
-# Étape 2 : Image légère pour exécution
+# Utilise une image de base Node.js Alpine
 FROM node:18-alpine
 
+# Définir le répertoire de travail
 WORKDIR /app
 
-# Copie uniquement ce qui est nécessaire
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
+# Copier les fichiers de dépendances
+COPY package*.json ./
 
-# Expose port
+# Installer les dépendances applicatives (axios, nestjs, etc.)
+RUN npm install --legacy-peer-deps
+
+# Copier le reste des fichiers
+COPY . .
+
+# Build le projet NestJS
+RUN npm run build
+
+# Exposer le port sur lequel ton app écoute
 EXPOSE 3004
 
+# Lancer l'application
 CMD ["node", "dist/main.js"]
 
 
