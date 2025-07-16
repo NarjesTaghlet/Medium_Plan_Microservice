@@ -44,13 +44,9 @@ COPY . .
 RUN npm run build
 
 # Exposer le port sur lequel ton app écoute
-EXPOSE 3004
+EXPOSE 3033
 
 # Lancer l'application
 CMD ["node", "dist/main.js"]
 
-
-EXPOSE 3004
-
-CMD ["node", "dist/main.js"]
 
