@@ -30,18 +30,14 @@ import { AutoScalingClient, UpdateAutoScalingGroupCommand, DeleteAutoScalingGrou
 import { EC2Client, DescribeInstancesCommand, TerminateInstancesCommand } from '@aws-sdk/client-ec2';
 
 import { 
-  mkdtempSync, 
   readFileSync, 
-  rmSync, 
+ 
 } from 'fs';
-import { tmpdir } from 'os';
 import { join } from 'path';
 import * as path from 'path';
 import logger from 'src/utils/logger';
 import { execSync } from 'child_process';
-import { AwsCredentialsResponse } from './interfaces/aws-credentials.interface';
 import * as dotenv from 'dotenv' ;
-import * as crypto from 'crypto';
 import { promisify } from 'util';
 import { exec } from 'child_process';
 import { HttpService } from '@nestjs/axios';
