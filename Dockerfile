@@ -41,8 +41,6 @@ RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform
     rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
     terraform -version
 
-# Install AWS provider cache
-RUN terraform providers mirror /usr/local/share/terraform/plugins
 
 WORKDIR /app
 
