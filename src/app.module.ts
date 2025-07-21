@@ -39,4 +39,9 @@ import { RestoredbModule } from './restoredb/restoredb.module';
   controllers: [AppController],
   providers: [AppService], // Retire JwtStrategy d'ici
 })
-export class AppModule {}
+export class AppModule {
+   constructor(private readonly configService: ConfigService) {
+ 
+    console.log(this.configService.get<string>('USER_SERVICE_URL'))
+  }
+}
