@@ -68,7 +68,8 @@ export class MediumService {
   private readonly webhookUrl = 'https://3e1d-2c0f-f698-4097-5566-4560-c960-b6f0-e696.ngrok-free.app/deployment/github'; // Replace with your ngrok URL
   private readonly cloudflareZoneId: string;
 private readonly cloudflareApiToken: string;
-  private readonly userServiceUrl = 'http://localhost:3030'
+  private readonly userServiceUrl = this.configService.get<string>('USER_SERVICE_URL', 'http://localhost:3030');
+
 
     constructor(
       @InjectRepository(Deployment)
