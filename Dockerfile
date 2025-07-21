@@ -28,17 +28,7 @@
 # Utilise Node.js 18 en base
 FROM node:18-alpine
 
-# Install AWS CLI and dependencies
-RUN apk add --no-cache \
-    curl \
-    unzip \
-    python3 \
-    py3-pip \
-    && pip3 install --upgrade pip \
-    && curl "https://awscli.amazonaws.com/awscli-exe-linux-$(uname -m).zip" -o "awscliv2.zip" \
-    && unzip awscliv2.zip \
-    && ./aws/install \
-    && rm -rf awscliv2.zip aws
+RUN apk add --no-cache aws-cli
 
 RUN aws --version    
 
