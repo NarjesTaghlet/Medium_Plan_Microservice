@@ -1223,7 +1223,7 @@ try {
       let secretsManagerClient: SecretsManagerClient | undefined;
       const workspaceName = `user-${userId}-${siteName}`;
       const tempProfile = `temp-subaccount-${userId}-${siteName}`;
-      const env = { ...process.env, AWS_PROFILE: tempProfile, PATH: `${process.env.PATH};C:\\windows\\system32` };
+      const env = { ...process.env, AWS_PROFILE: tempProfile};
     
       try {
         logger.info(`Starting destruction for user_id ${userId}, site_name ${siteName}, deployment_id ${deploymentId}`);
