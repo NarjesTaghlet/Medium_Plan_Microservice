@@ -1046,10 +1046,10 @@ try {
     
         
         // Step 5: Set temporary AWS CLI profile
-        execSync(`aws configure set aws_access_key_id ${accessKeyId} --profile ${tempProfile}`, { stdio: 'inherit', shell: 'cmd.exe' });
-        execSync(`aws configure set aws_secret_access_key ${secretAccessKey} --profile ${tempProfile}`, { stdio: 'inherit', shell: 'cmd.exe' });
-        execSync(`aws configure set aws_session_token ${sessionToken} --profile ${tempProfile}`, { stdio: 'inherit', shell: 'cmd.exe' });
-        execSync(`aws configure set region us-east-1 --profile ${tempProfile}`, { stdio: 'inherit', shell: 'cmd.exe' });
+        execSync(`aws configure set aws_access_key_id ${accessKeyId} --profile ${tempProfile}`);
+        execSync(`aws configure set aws_secret_access_key ${secretAccessKey} --profile ${tempProfile}`);
+        execSync(`aws configure set aws_session_token ${sessionToken} --profile ${tempProfile}`);
+        execSync(`aws configure set region us-east-1 --profile ${tempProfile}`);
         logger.info(`Created profile: ${tempProfile}`);
     
         // Step 8: Initialize Terraform with lock check
@@ -1252,10 +1252,10 @@ try {
         });
 
         // Step 5: Set temporary AWS CLI profile
-        execSync(`aws configure set aws_access_key_id ${accessKeyId} --profile ${tempProfile}`, { stdio: 'inherit', shell: 'cmd.exe' });
-        execSync(`aws configure set aws_secret_access_key ${secretAccessKey} --profile ${tempProfile}`, { stdio: 'inherit', shell: 'cmd.exe' });
-        execSync(`aws configure set aws_session_token ${sessionToken} --profile ${tempProfile}`, { stdio: 'inherit', shell: 'cmd.exe' });
-        execSync(`aws configure set region us-east-1 --profile ${tempProfile}`, { stdio: 'inherit', shell: 'cmd.exe' });
+        execSync(`aws configure set aws_access_key_id ${accessKeyId} --profile ${tempProfile}`);
+        execSync(`aws configure set aws_secret_access_key ${secretAccessKey} --profile ${tempProfile}`);
+        execSync(`aws configure set aws_session_token ${sessionToken} --profile ${tempProfile}`);
+        execSync(`aws configure set region us-east-1 --profile ${tempProfile}`);
         logger.info(`Created profile: ${tempProfile}`);
 
        
@@ -1448,20 +1448,20 @@ try {
       
           // Step 3: Set temporary AWS CLI profile
           const tempProfile = `temp-subaccount-${userId}-${siteName}`;
-          execSync(`aws configure set aws_access_key_id ${accessKeyId} --profile ${tempProfile}`, { stdio: 'inherit', shell: 'cmd.exe' });
-          execSync(`aws configure set aws_secret_access_key ${secretAccessKey} --profile ${tempProfile}`, { stdio: 'inherit', shell: 'cmd.exe' });
-          execSync(`aws configure set aws_session_token ${sessionToken} --profile ${tempProfile}`, { stdio: 'inherit', shell: 'cmd.exe' });
-          execSync(`aws configure set region us-east-1 --profile ${tempProfile}`, { stdio: 'inherit', shell: 'cmd.exe' });
+          execSync(`aws configure set aws_access_key_id ${accessKeyId} --profile ${tempProfile}`);
+          execSync(`aws configure set aws_secret_access_key ${secretAccessKey} --profile ${tempProfile}`);
+          execSync(`aws configure set aws_session_token ${sessionToken} --profile ${tempProfile}`);
+          execSync(`aws configure set region us-east-1 --profile ${tempProfile}`);
           logger.info(`Created profile: ${tempProfile}`);
       
           // Step 4: Run Terraform destroy
           const terraformDir = path.join('terraform', 'MediumPlan', 'PROD');
           logger.info(`Terraform directory: ${terraformDir}`);
-          const env = { ...process.env, AWS_PROFILE: tempProfile, PATH: `${process.env.PATH};C:\\windows\\system32` };
+          const env = { ...process.env, AWS_PROFILE: tempProfile };
       
           try {
-            execSync(`terraform init`, { cwd: terraformDir, env, stdio: 'inherit', shell: 'cmd.exe' });
-            execSync(`terraform destroy -auto-approve -var="user_id=${userId}" -var="site_name=${siteName}" -var="account_id=${accountId}"  -var="aws_access_key_id=${accessKeyId}" -var="aws_secret_access_key=${secretAccessKey}" -var="aws_session_token=${sessionToken}"`, { cwd: terraformDir, env, stdio: 'inherit', shell: 'cmd.exe' });
+            execSync(`terraform init`, { cwd: terraformDir, env, stdio: 'inherit' });
+            execSync(`terraform destroy -auto-approve -var="user_id=${userId}" -var="site_name=${siteName}" -var="account_id=${accountId}"  -var="aws_access_key_id=${accessKeyId}" -var="aws_secret_access_key=${secretAccessKey}" -var="aws_session_token=${sessionToken}"`, { cwd: terraformDir, env, stdio: 'inherit'});
             logger.info(`Destroyed infrastructure`);
           } catch (terraformError) {
             logger.error(`Terraform error: ${terraformError.message}`);
