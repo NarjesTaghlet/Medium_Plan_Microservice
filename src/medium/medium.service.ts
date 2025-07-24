@@ -11,6 +11,7 @@ import { SecretsManagerClient,UpdateSecretCommand,CreateSecretCommand } from '@a
 import { Deployment } from './entities/deployment.entity';
 import * as fs from 'fs-extra';
 import { InjectRepository } from '@nestjs/typeorm';
+import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import { NotFoundException } from '@nestjs/common';
 
 import {
@@ -61,6 +62,8 @@ export class MediumService {
   private readonly payloadFile = 'github_payload.json';
  
   private readonly githubApiUrl = 'https://api.github.com';
+    private readonly sqsClient = new SQSClient({ region: process.env.AWS_REGION });
+
   private readonly orgName ='NarjesTg' ;
   private readonly templaterepo = 'Template-Basic'
   //return the real github token 
@@ -193,51 +196,42 @@ const userServiceUrl = this.configService.get<string>('USER_SERVICE_URL', 'http:
       }
 */
 
-async createDeployment(
-  userId: number,
-  siteName: string,
-  cloudflareDomain: string,
-  selectedStack: string
-): Promise<{ deploymentId: number }> {
-  // 🔤 Nettoyer le nom du site
-  const SiteName = siteName.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+ async createDeployment(userId: number, siteName: string, cloudflareDomain: string, selectedStack: string): Promise<Deployment> {
+    const SiteName = siteName.toLowerCase().replace(/[^a-z0-9-]/g, '-');
 
-  // 🗂️ Créer le déploiement dans la BDD
-  const deployment = this.deploymentRepository.create({
-    userId,
-    siteName: SiteName,
-    cloudflareDomain,
-    selectedStack,
-    status: 'Pending',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  });
+    const deployment = this.deploymentRepository.create({
+      userId,
+      siteName: SiteName,
+      cloudflareDomain,
+      selectedStack,
+      status: 'Pending',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
 
-  await this.deploymentRepository.save(deployment);
-  this.startDeploymentWorker(deployment); // 👈 fonctionne sans blocage
-
-  return { deploymentId: deployment.id };
-}
-
-private async startDeploymentWorker(deployment: Deployment): Promise<void> {
-  try {
-    await this.deployInfrastructureAndSetupGitHub(deployment); // 🧠 on await ici
-
-    deployment.status = 'Active';
-    deployment.updatedAt = new Date();
     await this.deploymentRepository.save(deployment);
 
-    console.log(`✅ Deployment ${deployment.id} completed`);
-  } catch (error) {
-    deployment.status = 'Failed';
-    deployment.updatedAt = new Date();
-    await this.deploymentRepository.save(deployment);
+    const message = {
+      deploymentId: deployment.id,
+      userId,
+      siteName: SiteName,
+    };
 
-    console.error(`❌ Deployment ${deployment.id} failed:`, error.message);
+    const command = new SendMessageCommand({
+      QueueUrl: process.env.DEPLOYMENT_QUEUE_URL,
+      MessageBody: JSON.stringify(message),
+    });
+
+    try {
+      await this.sqsClient.send(command);
+      console.log(`✅ Message sent to SQS for deployment ${deployment.id}`);
+    } catch (err) {
+      console.error(`❌ Failed to send to SQS: ${err.message}`);
+      throw new Error('Could not enqueue deployment job.');
+    }
+
+    return deployment;
   }
-}
-
-
 
       async getDeploymentStatus( id: number) {
         const deployment = await this.deploymentRepository.findOneBy({ id });

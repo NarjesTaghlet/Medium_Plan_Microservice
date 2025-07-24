@@ -47,7 +47,7 @@ const corsMiddleware = (req, res, next) => {
 // Use the middleware in all services
 app.use(corsMiddleware);
  
- await app.listen(3033);
+ await app.listen(3004);
 
 }
 bootstrap();
