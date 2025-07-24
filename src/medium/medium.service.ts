@@ -214,25 +214,29 @@ async createDeployment(
   });
 
   await this.deploymentRepository.save(deployment);
+  this.startDeploymentWorker(deployment); // 👈 fonctionne sans blocage
 
-  // 🔁 Déclenche Terraform en arrière-plan (non bloquant)
-  this.deployInfrastructureAndSetupGitHub(deployment)
-    .then(async () => {
-      deployment.status = 'Active';
-      deployment.updatedAt = new Date();
-      await this.deploymentRepository.save(deployment);
-      console.log(`✅ Deployment ${deployment.id} completed`);
-    })
-    .catch(async (error) => {
-      deployment.status = 'Failed';
-      deployment.updatedAt = new Date();
-      await this.deploymentRepository.save(deployment);
-      console.error(`❌ Deployment ${deployment.id} failed:`, error.message);
-    });
-
-  // ✅ Réponse immédiate pour le frontend
   return { deploymentId: deployment.id };
 }
+
+private async startDeploymentWorker(deployment: Deployment): Promise<void> {
+  try {
+    await this.deployInfrastructureAndSetupGitHub(deployment); // 🧠 on await ici
+
+    deployment.status = 'Active';
+    deployment.updatedAt = new Date();
+    await this.deploymentRepository.save(deployment);
+
+    console.log(`✅ Deployment ${deployment.id} completed`);
+  } catch (error) {
+    deployment.status = 'Failed';
+    deployment.updatedAt = new Date();
+    await this.deploymentRepository.save(deployment);
+
+    console.error(`❌ Deployment ${deployment.id} failed:`, error.message);
+  }
+}
+
 
 
       async getDeploymentStatus( id: number) {
