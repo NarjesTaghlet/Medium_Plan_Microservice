@@ -134,6 +134,17 @@ export class MediumController {
       selectedStack,
     );
   }
+
+  @Get('status/:id')
+@UseGuards(TokenGuard)
+async getDeploymentStatus(@Param('id') id: number) {
+
+ const result =  this.mediumService.getDeploymentStatus(id)
+
+
+  return result;
+}
+
   
 
   @Delete('deployment/:id')

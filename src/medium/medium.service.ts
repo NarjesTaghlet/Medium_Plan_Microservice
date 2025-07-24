@@ -11,6 +11,7 @@ import { SecretsManagerClient,UpdateSecretCommand,CreateSecretCommand } from '@a
 import { Deployment } from './entities/deployment.entity';
 import * as fs from 'fs-extra';
 import { InjectRepository } from '@nestjs/typeorm';
+import { NotFoundException } from '@nestjs/common';
 
 import {
   ECSClient,
@@ -146,7 +147,7 @@ const userServiceUrl = this.configService.get<string>('USER_SERVICE_URL', 'http:
       };
     }
     
-
+/*
     async createDeployment(userId: number, siteName: string, cloudflareDomain: string, selectedStack: string ): Promise<Deployment> {
         // Create the deployment record with initial status "Pending"
         //lowercase siteName
@@ -165,8 +166,9 @@ const userServiceUrl = this.configService.get<string>('USER_SERVICE_URL', 'http:
     
         try {
           // Perform the deployment (Terraform, GitHub setup, etc.)
-          await this.deployInfrastructureAndSetupGitHub(deployment);
-    
+        await this.deployInfrastructureAndSetupGitHub(deployment);
+           
+
           // Update status to "Active" on success
           deployment.status = 'Active';
           deployment.updatedAt = new Date();
@@ -188,6 +190,59 @@ const userServiceUrl = this.configService.get<string>('USER_SERVICE_URL', 'http:
         }
     
         return deployment;
+      }
+*/
+
+async createDeployment(
+  userId: number,
+  siteName: string,
+  cloudflareDomain: string,
+  selectedStack: string
+): Promise<{ deploymentId: number }> {
+  // 🔤 Nettoyer le nom du site
+  const SiteName = siteName.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+
+  // 🗂️ Créer le déploiement dans la BDD
+  const deployment = this.deploymentRepository.create({
+    userId,
+    siteName: SiteName,
+    cloudflareDomain,
+    selectedStack,
+    status: 'Pending',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+
+  await this.deploymentRepository.save(deployment);
+
+  // 🔁 Déclenche Terraform en arrière-plan (non bloquant)
+  this.deployInfrastructureAndSetupGitHub(deployment)
+    .then(async () => {
+      deployment.status = 'Active';
+      deployment.updatedAt = new Date();
+      await this.deploymentRepository.save(deployment);
+      console.log(`✅ Deployment ${deployment.id} completed`);
+    })
+    .catch(async (error) => {
+      deployment.status = 'Failed';
+      deployment.updatedAt = new Date();
+      await this.deploymentRepository.save(deployment);
+      console.error(`❌ Deployment ${deployment.id} failed:`, error.message);
+    });
+
+  // ✅ Réponse immédiate pour le frontend
+  return { deploymentId: deployment.id };
+}
+
+
+      async getDeploymentStatus( id: number) {
+        const deployment = await this.deploymentRepository.findOneBy({ id });
+      
+        if (!deployment) {
+          throw new NotFoundException('Deployment not found');
+        }
+      
+        return { status: deployment.status };
       }
 
 
