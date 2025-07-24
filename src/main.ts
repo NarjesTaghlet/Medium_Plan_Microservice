@@ -22,10 +22,6 @@ const corsMiddleware = (req, res, next) => {
     'https://dpfzuq7w5fb82.cloudfront.net',
         'https://d3lkl4tdwg9nb5.cloudfront.net',
         'https://d2k1rrgcfjq38f.cloudfront.net',
-        
-   'alb-myapp-299605994.us-east-1.elb.amazonaws.com',
-    'https://*.cloudfront.net',
-    'http://localhost:4200' // For local development
   ];
   
   const origin = req.headers.origin;
