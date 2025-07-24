@@ -19,12 +19,26 @@ export class WorkerService implements OnModuleInit {
     private mediumService: MediumService,
     private configService: ConfigService,
   ) {
+
+     // Configuration SQS avec validation des credentials
+    if (!this.configService.get('AWS_ACCESS_KEY_ID') || !this.configService.get('AWS_SECRET_ACCESS_KEY')) {
+      console.error('AWS credentials are missing!');
+    }
+
+   
+
     const region = this.configService.get<string>('AWS_REGION');
     this.queueUrl = this.configService.get<string>('DEPLOYMENT_QUEUE_URL');
+    console.log(region)
     if (!region || !this.queueUrl) {
       throw new Error('AWS_REGION ou DEPLOYMENT_QUEUE_URL non configuré');
     }
-    this.sqs = new SQSClient({ region });
+    this.sqs = new SQSClient({ region ,
+      credentials: {
+        accessKeyId: this.configService.get('AWS_ACCESS_KEY_ID'),
+        secretAccessKey: this.configService.get('AWS_SECRET_ACCESS_KEY'),
+      },
+    });
   }
 
   async onModuleInit() {
