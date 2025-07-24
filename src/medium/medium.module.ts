@@ -6,14 +6,15 @@ import { TokenGuard } from './Guards/token-guard';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Deployment } from './entities/deployment.entity';
 import { RestoredbModule } from 'src/restoredb/restoredb.module';
+import { WorkerService } from 'src/worker.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Deployment ]), // Import the User entity for TypeORM
     HttpModule,
   ],
-  providers: [MediumService,TokenGuard],
+  providers: [MediumService,TokenGuard,WorkerService],
   controllers: [MediumController],
-  exports :[MediumService]
+  exports :[MediumService,WorkerService]
 })
 export class MediumModule {}

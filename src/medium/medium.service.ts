@@ -78,7 +78,6 @@ private readonly cloudflareApiToken: string;
     constructor(
       @InjectRepository(Deployment)
        private deploymentRepository: Repository<Deployment>,
-      
         private httpService: HttpService,
         private configService : ConfigService
         
@@ -216,6 +215,8 @@ const userServiceUrl = this.configService.get<string>('USER_SERVICE_URL', 'http:
       userId,
       siteName: SiteName,
     };
+
+    console.log(process.env.DEPLOYMENT_QUEUE_URL)
 
     const command = new SendMessageCommand({
       QueueUrl: process.env.DEPLOYMENT_QUEUE_URL,

@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Deployment } from './medium/entities/deployment.entity';
 import { RestoredbModule } from './restoredb/restoredb.module';
+import { WorkerService } from './worker.service';
 
 
 
