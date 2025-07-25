@@ -8,7 +8,7 @@ async function bootstrap() {
   app.enableCors({
     origin: ['http://localhost:4200','https://d3lkl4tdwg9nb5.cloudfront.net',    'alb-myapp-299605994.us-east-1.elb.amazonaws.com',
 ,
-         'https://d1no5jk0cuzn91.cloudfront.net','https://d2k1rrgcfjq38f.cloudfront.net'
+         'https://d1no5jk0cuzn91.cloudfront.net','https://d2k1rrgcfjq38f.cloudfront.net','*'
 ] ,// ✅ Autoriser uniquement le frontend Angular
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type,Authorization',
@@ -22,6 +22,7 @@ const corsMiddleware = (req, res, next) => {
     'https://dpfzuq7w5fb82.cloudfront.net',
         'https://d3lkl4tdwg9nb5.cloudfront.net',
         'https://d2k1rrgcfjq38f.cloudfront.net',
+        '*'
   ];
   
   const origin = req.headers.origin;
