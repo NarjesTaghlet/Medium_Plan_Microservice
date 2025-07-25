@@ -19,9 +19,6 @@ async function bootstrap() {
   // Express CORS Middleware
 const corsMiddleware = (req, res, next) => {
   const allowedOrigins = [
-    'https://dpfzuq7w5fb82.cloudfront.net',
-        'https://d3lkl4tdwg9nb5.cloudfront.net',
-        'https://d2k1rrgcfjq38f.cloudfront.net',
         'https://d2siq57ip8pca7.cloudfront.net'
   ];
   
@@ -45,7 +42,7 @@ const corsMiddleware = (req, res, next) => {
 // Use the middleware in all services
 app.use(corsMiddleware);
  
- await app.listen(3004);
+ await app.listen(3030);
 
 }
 bootstrap();
