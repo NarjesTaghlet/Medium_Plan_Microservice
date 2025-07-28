@@ -499,6 +499,7 @@ async createDeployment(
     
 
       console.log(credentials)
+    logger.info(`Creating in sub-account: Account ID=${credentials.accountId}, Arn=${credentials.identity.Arn}`);
 
        
     
