@@ -653,10 +653,7 @@ async createDeployment(
         const identity = await sts.getCallerIdentity().promise();
         const accountId = identity.Account;
   
-        if (accountId !== '923159238841') {
-          throw new Error(`Expected sub-account ID 923159238841, got ${accountId}`);
-        }
-        logger.info(`✅ Verified sub-account ID: ${accountId}`);
+       
     
     
         // 3. Configure AWS CLI profile (sync OK here)
@@ -803,7 +800,7 @@ async createDeployment(
         // Run terraform init with S3 backend configuration
         try {
           execSync(
-            `terraform init -backend-config="bucket=terraform-state-user" -backend-config="key=sites/${userId}/${siteName}/terraform.tfstate" -backend-config="region=us-east-1" -backend-config="dynamodb_table=terraform-locks-user" -reconfigure`,
+            `terraform init -backend-config="bucket=terraform-state-user" -backend-config="key=sites/${userId}/${siteName}/terraform.tfstate" -backend-config="region=us-east-1" -backend-config="dynamodb_table=terraform-locks-user" `,
             { cwd: terraformDir, stdio: 'inherit', env }
           );
           logger.info('Terraform init completed successfully');
