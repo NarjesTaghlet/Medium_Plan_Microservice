@@ -519,7 +519,7 @@ async createDeployment(
         execSync(`aws configure set aws_session_token ${credentials.sessionToken} --profile ${tempProfile}`);
          
 
-      const role_arn   = `"arn:aws:iam::${credentials.accountId}:role/OrganizationAccountAccessRole`
+      const role_arn  = `arn:aws:iam::${credentials.accountId}:role/OrganizationAccountAccessRole`
 
 
            // 7. Terraform apply
@@ -536,7 +536,6 @@ async createDeployment(
           `-backend-config=region=us-east-1`,
           `-backend-config=dynamodb_table=terraform-locks-user`,
          `-backend-config=role_arn=${role_arn}`,
-
           '-reconfigure'
         ], terraformDir, env);
     
