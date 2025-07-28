@@ -517,6 +517,9 @@ async createDeployment(
         execSync(`aws configure set aws_secret_access_key ${credentials.secretAccessKey} --profile ${tempProfile}`);
         execSync(`aws configure set aws_session_token ${credentials.sessionToken} --profile ${tempProfile}`);
          
+        console.log(`${tempProfile}`)
+        console.log( execSync(`aws configure set aws_access_key_id ${credentials.accessKeyId} --profile ${tempProfile}`))
+        console.log( execSync(`aws sts-get-caller-identity`))
 
 
            // 7. Terraform apply
