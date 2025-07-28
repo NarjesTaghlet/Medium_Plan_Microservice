@@ -19,7 +19,6 @@ terraform {
     key            = "sites/${var.user_id}/${var.site_name}/terraform.tfstate"
     region         =  "us-east-1" # Replace with your AWS region, e.g., "us-east-1"
     dynamodb_table = "terraform-locks-user" # Replace with actual table name
-        role_arn       = "arn:aws:iam::${var.account_id}:role/OrganizationAccountAccessRole"
 
   }
 

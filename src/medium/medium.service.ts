@@ -302,6 +302,7 @@ async createDeployment(
         // Step 1: Deploy Infrastructure
         //Deploying PROD
         const keyProd = `sites/${deployment.userId}/${deployment.siteName}/terraform.tfstate`
+
         const infraResult = await this.deployInfrastructure(deployment.userId, deployment.siteName ,deployment.userRepoUrl,keyProd);
     
          //Deploying DEV
@@ -497,7 +498,7 @@ async createDeployment(
        const credentials = await this.fetchTempCredentials(userId);
     
 
-
+          
 
        
     
@@ -516,6 +517,9 @@ async createDeployment(
         execSync(`aws configure set aws_access_key_id ${credentials.accessKeyId} --profile ${tempProfile}`);
         execSync(`aws configure set aws_secret_access_key ${credentials.secretAccessKey} --profile ${tempProfile}`);
         execSync(`aws configure set aws_session_token ${credentials.sessionToken} --profile ${tempProfile}`);
+         
+
+      const role_arn   = `"arn:aws:iam::${credentials.accountId}:role/OrganizationAccountAccessRole`
 
 
            // 7. Terraform apply
@@ -531,6 +535,8 @@ async createDeployment(
           `-backend-config=key=${key}`,
           `-backend-config=region=us-east-1`,
           `-backend-config=dynamodb_table=terraform-locks-user`,
+         `-backend-config=role_arn=${role_arn}`,
+
           '-reconfigure'
         ], terraformDir, env);
     
