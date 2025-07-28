@@ -494,7 +494,8 @@ async createDeployment(
     
         // 1. Get temporary credentials from user service
      
-            const credentials = await this.fetchTempCredentials(userId);
+       const credentials = await this.fetchTempCredentials(userId);
+    
 
 
 
@@ -797,7 +798,7 @@ async createDeployment(
         // Step 4: Set up Terraform execution directory
         const terraformDir = path.resolve('terraform', 'MediumPlan', 'PROD');
         logger.info(`Changed working directory to ${terraformDir}`);
-        const env = { ...process.env, AWS_PROFILE: tempProfile, PATH: `${process.env.PATH};C:\\windows\\system32` };
+        const env = { ...process.env, AWS_PROFILE: tempProfile };
     
         // Run terraform init with S3 backend configuration
         try {
@@ -857,7 +858,7 @@ async createDeployment(
       let secretsManagerClient: SecretsManagerClient | undefined;
       const workspaceName = `user-${userId}-${siteName}`;
       const tempProfile = `temp-subaccount-${userId}-${siteName}`;
-      const env = { ...process.env, AWS_PROFILE: tempProfile, PATH: `${process.env.PATH};C:\\windows\\system32` };
+      const env = { ...process.env, AWS_PROFILE: tempProfile };
     
       try {
         logger.info(`Starting destruction for user_id ${userId}, site_name ${siteName}, deployment_id ${deploymentId}`);
