@@ -802,6 +802,7 @@ async createDeployment(
           execSync(
             `terraform init -backend-config="bucket=terraform-state-user" -backend-config="key=sites/${userId}/${siteName}/terraform.tfstate" -backend-config="region=us-east-1" -backend-config="dynamodb_table=terraform-locks-user" `,
             { cwd: terraformDir, stdio: 'inherit', env }
+            //-reconfigure
           );
           logger.info('Terraform init completed successfully');
         } catch (error) {
