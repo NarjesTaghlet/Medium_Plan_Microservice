@@ -954,6 +954,8 @@ deployment_minimum_healthy_percent = 100
   timeouts {
     create = "30m"
     update = "30m"
+        delete = "30m"  # Increase timeout to 30 minutes
+
   }
 
   network_configuration {
@@ -968,9 +970,7 @@ deployment_minimum_healthy_percent = 100
     container_port   = 80
   }
 
-  timeouts {
-    delete = "30m"  # Increase timeout to 30 minutes
-  }
+
 
   placement_constraints {
     type = "distinctInstance"
@@ -985,7 +985,7 @@ deployment_minimum_healthy_percent = 100
 
   # Stratégie de déploiement blue/green
   deployment_controller {
-    type = "CODE_DEPLOY"  # Ou "ECS" pour rolling update
+    type = "ECS"  # Ou "ECS" pour rolling update
   }
 
   wait_for_steady_state = true
