@@ -950,6 +950,11 @@ resource "aws_ecs_service" "medium_tier" {
 
 deployment_minimum_healthy_percent = 100
   deployment_maximum_percent         = 200
+  health_check_grace_period_seconds = 60
+  timeouts {
+    create = "30m"
+    update = "30m"
+  }
 
   network_configuration {
     subnets          = [aws_subnet.private_subnet.id]

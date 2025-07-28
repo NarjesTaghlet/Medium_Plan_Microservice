@@ -650,7 +650,8 @@ const env = {
     }> {
       const tempProfile = `temp-subaccount-${userId}-${siteName}`;
       const workspaceName = `user-${userId}-${siteName}`;
-      const env = { ...process.env, AWS_PROFILE: tempProfile };
+   //   const env = { ...process.env, AWS_PROFILE: tempProfile };
+
     
       try {
         logger.info(`🚀 Starting deployment for user ${userId}, site "${siteName}"`);
@@ -665,6 +666,14 @@ const env = {
         const sts = new AWS.STS({ accessKeyId, secretAccessKey, sessionToken });
         const identity = await sts.getCallerIdentity().promise();
         const accountId = identity.Account;
+
+
+              const env = {
+  ...process.env,
+  AWS_ACCESS_KEY_ID:accessKeyId,
+  AWS_SECRET_ACCESS_KEY: secretAccessKey,
+  AWS_SESSION_TOKEN:sessionToken,
+};
   
        
     
@@ -869,7 +878,7 @@ const env = {
       let secretsManagerClient: SecretsManagerClient | undefined;
       const workspaceName = `user-${userId}-${siteName}`;
       const tempProfile = `temp-subaccount-${userId}-${siteName}`;
-      const env = { ...process.env, AWS_PROFILE: tempProfile };
+    //  const env = { ...process.env, AWS_PROFILE: tempProfile };
     
       try {
         logger.info(`Starting destruction for user_id ${userId}, site_name ${siteName}, deployment_id ${deploymentId}`);
@@ -878,6 +887,12 @@ const env = {
         const data = await this.fetchTempCredentials(userId);
 
          const { accessKeyId, secretAccessKey, sessionToken } = data;
+               const env = {
+  ...process.env,
+  AWS_ACCESS_KEY_ID: accessKeyId,
+  AWS_SECRET_ACCESS_KEY: secretAccessKey,
+  AWS_SESSION_TOKEN: sessionToken,
+};
         logger.info(`Credentials: aws_access_key_id=${accessKeyId}`);
     
         // Step 2: Verify credentials
@@ -1330,7 +1345,7 @@ try {
       let secretsManagerClient: SecretsManagerClient | undefined;
       const workspaceName = `user-${userId}-${siteName}`;
       const tempProfile = `temp-subaccount-${userId}-${siteName}`;
-      const env = { ...process.env, AWS_PROFILE: tempProfile};
+   //   const env = { ...process.env, AWS_PROFILE: tempProfile};
     
       try {
         logger.info(`Starting destruction for user_id ${userId}, site_name ${siteName}, deployment_id ${deploymentId}`);
@@ -1344,6 +1359,12 @@ try {
         const data = await this.fetchTempCredentials(userId);
 
          const { accessKeyId, secretAccessKey, sessionToken } = data;
+               const env = {
+  ...process.env,
+  AWS_ACCESS_KEY_ID: accessKeyId,
+  AWS_SECRET_ACCESS_KEY: secretAccessKey,
+  AWS_SESSION_TOKEN: sessionToken,
+};
         logger.info(`Credentials: aws_access_key_id=${accessKeyId}`);
     
         // Step 2: Verify credentials
@@ -1613,7 +1634,10 @@ async deleteSite(deploymentId: number): Promise<void> {
   try {
 
 
-    const terraformDirDEV = path.join('terraform', 'MediumPlan', 'DEV');
+   // const terraformDirDEV = path.join('terraform', 'MediumPlan', 'DEV');
+    const terraformDirDEV = path.resolve('terraform', 'MediumPlan', 'DEV');
+    console.log("Running terraform destroy in: ", terraformDirDEV);
+
     const keyDev = `sites/${deployment.userId}/dev/${deployment.siteName}/terraform.tfstate`
 
     await this.destroyDEVInfrastructure(userId, siteName, deploymentId,terraformDirDEV,keyDev);
