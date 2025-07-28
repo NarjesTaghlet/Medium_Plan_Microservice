@@ -532,7 +532,6 @@ async createDeployment(
           `-backend-config=bucket=terraform-state-user`,
           `-backend-config=key=${key}`,
           `-backend-config=region=us-east-1`,
-          `-backend-config=dynamodb_table=terraform-locks-user`,
           '-reconfigure'
         ], terraformDir, env);
     

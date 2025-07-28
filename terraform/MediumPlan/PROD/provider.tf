@@ -19,7 +19,7 @@ terraform {
     key            = "sites/${var.user_id}/${var.site_name}/terraform.tfstate"
     region         =  "us-east-1" # Replace with your AWS region, e.g., "us-east-1"
     dynamodb_table = "terraform-locks-user" # Replace with actual table name
-
+    use_lockfile = true
   }
 
   /*backend "local" {
