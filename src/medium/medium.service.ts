@@ -488,14 +488,23 @@ async createDeployment(
       const terraformDir = resolve('terraform', 'MediumPlan', 'PROD');
       const tempProfile = `temp-subaccount-${userId}-${siteName}`;
       const workspaceName = `user-${userId}-${siteName}`;
-      const env = { ...process.env, AWS_PROFILE: tempProfile };
-    
+    //  const env = { ...process.env, AWS_PROFILE: tempProfile };
+
       try {
         logger.info(`🚀 Starting deployment for user ${userId}, site "${siteName}"`);
     
         // 1. Get temporary credentials from user service
      
        const credentials = await this.fetchTempCredentials(userId);
+const env = {
+  ...process.env,
+  AWS_ACCESS_KEY_ID: credentials.accessKeyId,
+  AWS_SECRET_ACCESS_KEY: credentials.secretAccessKey,
+  AWS_SESSION_TOKEN: credentials.sessionToken,
+  TF_LOG: 'DEBUG',
+};
+
+    
     
 
       console.log(credentials)
@@ -586,7 +595,7 @@ async createDeployment(
         const outputs = JSON.parse(outputJson);
     
         // 9. Clean up AWS profile
-        const credsPath = join(env.AWS_PROFILE, '.aws', 'credentials');
+        const credsPath = join( process.env.USERPROFILE, '.aws', 'credentials');
         if (existsSync(credsPath)) {
           let content = readFileSync(credsPath, 'utf-8');
           content = content.replace(new RegExp(`\\[${tempProfile}\\][\\s\\S]*?(?=\\[|$)`, 'g'), '');
