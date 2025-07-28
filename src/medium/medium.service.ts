@@ -498,7 +498,7 @@ async createDeployment(
        const credentials = await this.fetchTempCredentials(userId);
     
 
-          
+      console.log(credentials)
 
        
     
