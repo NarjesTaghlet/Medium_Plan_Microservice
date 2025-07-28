@@ -40,7 +40,8 @@ const corsMiddleware = (req, res, next) => {
 // Use the middleware in all services
 app.use(corsMiddleware);
  
- await app.listen(3030);
+  await app.listen(3033, '0.0.0.0'); // ⚠️ OBLIGATOIRE
+
 
 }
 bootstrap();
