@@ -499,9 +499,7 @@ async createDeployment(
     
 
       console.log(credentials)
-    logger.info(`Creating in sub-account: Account ID=${credentials.accountId}, Arn=${credentials.identity.Arn}`);
-
-       
+          logger.info(`Creating in sub-account: Account ID=${credentials.accountId}`);
     
         logger.info(`🪪 AWS creds loaded for ${userId}`);
     
@@ -533,6 +531,7 @@ async createDeployment(
           `-backend-config=bucket=terraform-state-user`,
           `-backend-config=key=${key}`,
           `-backend-config=region=us-east-1`,
+        // `-backend-config=dynamodb_table=terraform-locks-user`,
           '-reconfigure'
         ], terraformDir, env);
     
@@ -584,7 +583,7 @@ async createDeployment(
         const outputs = JSON.parse(outputJson);
     
         // 9. Clean up AWS profile
-        const credsPath = join(process.env.USERPROFILE, '.aws', 'credentials');
+        const credsPath = join(env.AWS_PROFILE, '.aws', 'credentials');
         if (existsSync(credsPath)) {
           let content = readFileSync(credsPath, 'utf-8');
           content = content.replace(new RegExp(`\\[${tempProfile}\\][\\s\\S]*?(?=\\[|$)`, 'g'), '');
