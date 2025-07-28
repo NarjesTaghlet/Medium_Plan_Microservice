@@ -1283,14 +1283,19 @@ try {
         // Step 13: Clean up Secrets Manager secrets
         await this.cleanupScheduledSecrets(userId, siteName);
     
-        // Step 14: Clean up profile
-        const awsCredentialsPath = path.join(process.env.USERPROFILE, '.aws', 'credentials');
-        if (fs.existsSync(awsCredentialsPath)) {
-          let credentialsContent = fs.readFileSync(awsCredentialsPath, 'utf-8');
-          credentialsContent = credentialsContent.replace(new RegExp(`\\[${tempProfile}\\][\\s\\S]*?(?=\\[|$)`, 'g'), '');
-          fs.writeFileSync(awsCredentialsPath, credentialsContent.trim());
-          logger.info(`Removed profile: ${tempProfile}`);
-        }
+          const awsCredentialsPath = path.join(os.homedir(), '.aws', 'credentials');
+
+if (fs.existsSync(awsCredentialsPath)) {
+  let credentialsContent = fs.readFileSync(awsCredentialsPath, 'utf-8');
+
+  // Supprimer uniquement le bloc du profil temporaire
+  const regex = new RegExp(`\\[${tempProfile}\\][\\s\\S]*?(?=\\[|$)`, 'g');
+  const updatedContent = credentialsContent.replace(regex, '').trim();
+
+  fs.writeFileSync(awsCredentialsPath, updatedContent);
+  logger.info(`✅ Removed AWS CLI profile: ${tempProfile}`);
+}
+    
     
         // Step 15: Delete GitHub repositories
      //   await this.deleteGitHubRepositories(userId, siteName);

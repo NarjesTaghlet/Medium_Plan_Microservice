@@ -146,7 +146,7 @@ async getDeploymentStatus(@Param('id') id: number) {
 }
 
   
-
+/* // original function
   @Delete('deployment/:id')
   async delete(@Param('id') id: string): Promise<void> {
     try {
@@ -158,6 +158,19 @@ async getDeploymentStatus(@Param('id') id: number) {
       );
     }
   }
+*/
+
+@Delete('deployment/:id')
+async delete(@Param('id') id: string): Promise<{ message: string }> {
+  const deploymentId = parseInt(id);
+
+  // Trigger deletion logic asynchronously
+  this.mediumService.deleteSite(deploymentId).catch((error) => {
+    console.error(`Async deletion failed: ${error.message}`);
+  });
+
+  return { message: `Deletion initiated for deployment ${deploymentId}` };
+}
 
   /*  @Post('test-deploy')
     async deployInfrastructure(
