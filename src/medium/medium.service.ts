@@ -1,6 +1,8 @@
 import * as AWS from 'aws-sdk';
 import { spawn } from 'child_process';
 import {  resolve } from 'path';
+import * as os from 'os';
+
 import { Repository } from 'typeorm';
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
 import {  GetSecretValueCommand,PutSecretValueCommand} from '@aws-sdk/client-secrets-manager';
@@ -595,7 +597,7 @@ const env = {
         const outputs = JSON.parse(outputJson);
     
         // 9. Clean up AWS profile
-        const credsPath = join( process.env.USERPROFILE, '.aws', 'credentials');
+        const credsPath = join(process.env.USERPROFILE, '.aws', 'credentials');
         if (existsSync(credsPath)) {
           let content = readFileSync(credsPath, 'utf-8');
           content = content.replace(new RegExp(`\\[${tempProfile}\\][\\s\\S]*?(?=\\[|$)`, 'g'), '');
@@ -1481,13 +1483,25 @@ try {
         await this.cleanupScheduledSecrets(userId, siteName);
     
         // Step 14: Clean up profile
-        const awsCredentialsPath = path.join(process.env.USERPROFILE, '.aws', 'credentials');
+       /*const awsCredentialsPath = path.join(tempProfile, '.aws', 'credentials');
         if (fs.existsSync(awsCredentialsPath)) {
           let credentialsContent = fs.readFileSync(awsCredentialsPath, 'utf-8');
           credentialsContent = credentialsContent.replace(new RegExp(`\\[${tempProfile}\\][\\s\\S]*?(?=\\[|$)`, 'g'), '');
           fs.writeFileSync(awsCredentialsPath, credentialsContent.trim());
           logger.info(`Removed profile: ${tempProfile}`);
-        }
+        }*/
+       const awsCredentialsPath = path.join(os.homedir(), '.aws', 'credentials');
+
+if (fs.existsSync(awsCredentialsPath)) {
+  let credentialsContent = fs.readFileSync(awsCredentialsPath, 'utf-8');
+
+  // Supprimer uniquement le bloc du profil temporaire
+  const regex = new RegExp(`\\[${tempProfile}\\][\\s\\S]*?(?=\\[|$)`, 'g');
+  const updatedContent = credentialsContent.replace(regex, '').trim();
+
+  fs.writeFileSync(awsCredentialsPath, updatedContent);
+  logger.info(`✅ Removed AWS CLI profile: ${tempProfile}`);
+}
     
         // Step 15: Delete GitHub repositories
         ///await this.deleteGitHubRepositories(userId, siteName);
@@ -1643,7 +1657,7 @@ async deleteSite(deploymentId: number): Promise<void> {
     await this.destroyDEVInfrastructure(userId, siteName, deploymentId,terraformDirDEV,keyDev);
     
 
-    const terraformDirPROD = path.join('terraform', 'MediumPlan', 'PROD');
+    const terraformDirPROD = path.resolve('terraform', 'MediumPlan', 'PROD');
     const keyProd = `sites/${deployment.userId}/${deployment.siteName}/terraform.tfstate`
 
     await this.destroyPRODInfrastructure(userId, siteName, deploymentId,terraformDirPROD,keyProd);
