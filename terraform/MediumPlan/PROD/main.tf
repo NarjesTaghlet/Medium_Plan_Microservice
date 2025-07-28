@@ -1002,7 +1002,7 @@ deployment_minimum_healthy_percent = 100
   tags = { Name = "ecs-service-medium-tier-${var.site_name}" }
 }
 
-resource "null_resource" "ecs_service_cleanup" {
+/*resource "null_resource" "ecs_service_cleanup" {
   triggers = {
     cluster_name     = aws_ecs_cluster.main.name
     service_name     = aws_ecs_service.medium_tier.name
@@ -1013,7 +1013,8 @@ resource "null_resource" "ecs_service_cleanup" {
   provisioner "local-exec" {
     when    = destroy
     command = <<EOT
-      echo "Checking AWS credentials..."
+
+     # Use assumed credentials
       if ! aws sts get-caller-identity --region ${self.triggers.region} >/dev/null 2>&1; then
         echo "Error: AWS credentials expired or invalid. Please refresh credentials."
         exit 1
@@ -1085,7 +1086,7 @@ resource "null_resource" "ecs_service_cleanup" {
     EOT
   }
   depends_on = [aws_lb_target_group.medium_tier_tg, aws_lb.alb, aws_autoscaling_group.ecs_asg]
-}
+}*/
 
 # Auto Scaling for ECS Service
 resource "aws_appautoscaling_target" "medium_tier_scaling_target" {
