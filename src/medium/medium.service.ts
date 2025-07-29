@@ -1139,7 +1139,6 @@ try {
 }
 
     // Step 8: Delete ECS cluster
-    // Step 8: Delete ECS cluster
 try {
   console.log(`Checking for active tasks in ECS cluster ${clusterName}...`);
   const tasks = await ecsClient.send(
