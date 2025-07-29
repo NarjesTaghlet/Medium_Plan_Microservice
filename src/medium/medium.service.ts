@@ -891,6 +891,36 @@ if (fs.existsSync(awsCredentialsPath)) {
     }
 
 
+    async stopAllTasksBeforeClusterDelete(clusterName: string, ecsClient: ECSClient) {
+  for (const status of ["RUNNING", "PENDING"] as const) {
+    const taskList = await ecsClient.send(
+      new ListTasksCommand({
+        cluster: clusterName,
+        desiredStatus: status,
+      }),
+    );
+
+    if (taskList.taskArns && taskList.taskArns.length > 0) {
+      console.log(`Stopping ${status} tasks: ${taskList.taskArns.length}`);
+      for (const taskArn of taskList.taskArns) {
+        await ecsClient.send(
+          new StopTaskCommand({
+            cluster: clusterName,
+            task: taskArn,
+            reason: `Force stop ${status} task before ECS cluster deletion`,
+          }),
+        );
+      }
+      console.log(`Waiting 60s after stopping ${status} tasks...`);
+      await new Promise((resolve) => setTimeout(resolve, 60000));
+    } else {
+      console.log(`No ${status} tasks to stop.`);
+    }
+  }
+}
+
+
+
   
     async  destroyPRODInfrastructure(userId: number, siteName: string, deploymentId: number, terraformDir : string , key : string): Promise<void> {
       let secretsManagerClient: SecretsManagerClient | undefined;
@@ -1123,7 +1153,7 @@ if (fs.existsSync(awsCredentialsPath)) {
       console.warn(`Failed to remove/delete Capacity Provider ${capacityProvider}: ${error.message}. Proceeding.`);
     }
     // Step 7.5: Stop any remaining running ECS tasks not associated with a service
-try {
+/*try {
   console.log(`Listing all running tasks in ECS cluster ${clusterName}...`);
   const runningTasks = await ecsClient.send(
     new ListTasksCommand({
@@ -1152,7 +1182,23 @@ try {
   }
 } catch (error) {
   logger.warn(`Failed to stop standalone running tasks: ${error.message}. Proceeding.`);
+}*/
+
+// Step 7.5 + 8: Stop all tasks (RUNNING + PENDING) before deleting ECS cluster
+try {
+  await this.stopAllTasksBeforeClusterDelete(clusterName, ecsClient);
+
+  console.log(`Trying to delete ECS cluster ${clusterName}...`);
+  await ecsClient.send(
+    new DeleteClusterCommand({
+      cluster: clusterName,
+    }),
+  );
+  console.log(`✅ ECS cluster ${clusterName} deleted successfully.`);
+} catch (error) {
+  logger.warn(`❌ Failed to delete ECS cluster ${clusterName}: ${error.message}`);
 }
+
 
     // Step 8: Delete ECS cluster
 try {
