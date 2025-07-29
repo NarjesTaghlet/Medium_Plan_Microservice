@@ -1077,7 +1077,7 @@ if (fs.existsSync(awsCredentialsPath)) {
         const maxAttempts = 3;
         while (attempts < maxAttempts) {
           try {
-            await ecsClient.send(
+           /* await ecsClient.send(
               new UpdateServiceCommand({
                 cluster: clusterName,
                 service: serviceName,
@@ -1085,7 +1085,16 @@ if (fs.existsSync(awsCredentialsPath)) {
                 capacityProviderStrategy: [],
                 forceNewDeployment: true,
               }),
-            );
+            );*/
+            await ecsClient.send(
+  new UpdateServiceCommand({
+    cluster: clusterName,
+    service: serviceName,
+    desiredCount: 0,
+    forceNewDeployment: true,
+  }),
+);
+
             console.log(`ECS service ${serviceName} scaled down successfully.`);
             break;
           } catch (updateError) {

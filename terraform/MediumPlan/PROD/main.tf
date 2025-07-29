@@ -117,7 +117,7 @@ resource "aws_internet_gateway" "igw" {
 }
 
 # Null Resource to Force EIP Release
-resource "null_resource" "eip_cleanup" {
+/*resource "null_resource" "eip_cleanup" {
   triggers = {
     eip_id = aws_eip.nat_eip.id
     region = var.aws_region
@@ -136,6 +136,7 @@ resource "null_resource" "eip_cleanup" {
   }
   depends_on = [aws_nat_gateway.nat]
 }
+*/
 
 # Public Subnet 1 (for ALB and NAT Gateway in us-east-1a)
 resource "aws_subnet" "public_subnet_1" {
