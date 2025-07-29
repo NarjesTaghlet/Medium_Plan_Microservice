@@ -597,7 +597,7 @@ const env = {
         const outputs = JSON.parse(outputJson);
     
         // 9. Clean up AWS profile
-        const credsPath = join(process.env.USERPROFILE, '.aws', 'credentials');
+      /*  const credsPath = join(process.env.USERPROFILE, '.aws', 'credentials');
         if (existsSync(credsPath)) {
           let content = readFileSync(credsPath, 'utf-8');
           content = content.replace(new RegExp(`\\[${tempProfile}\\][\\s\\S]*?(?=\\[|$)`, 'g'), '');
@@ -605,7 +605,19 @@ const env = {
         }
     
         logger.info(`✅ Deployment completed for user ${userId}, site "${siteName}"`);
-  
+  */
+     const awsCredentialsPath = path.join(os.homedir(), '.aws', 'credentials');
+
+if (fs.existsSync(awsCredentialsPath)) {
+  let credentialsContent = fs.readFileSync(awsCredentialsPath, 'utf-8');
+
+  // Supprimer uniquement le bloc du profil temporaire
+  const regex = new RegExp(`\\[${tempProfile}\\][\\s\\S]*?(?=\\[|$)`, 'g');
+  const updatedContent = credentialsContent.replace(regex, '').trim();
+
+  fs.writeFileSync(awsCredentialsPath, updatedContent);
+  logger.info(`✅ Removed AWS CLI profile: ${tempProfile}`);
+}
       
   
     
@@ -736,14 +748,18 @@ const env = {
         const outputs = JSON.parse(outputJson);
     
         // 9. Clean up AWS profile
-        const credsPath = join(process.env.USERPROFILE, '.aws', 'credentials');
-        if (existsSync(credsPath)) {
-          let content = readFileSync(credsPath, 'utf-8');
-          content = content.replace(new RegExp(`\\[${tempProfile}\\][\\s\\S]*?(?=\\[|$)`, 'g'), '');
-          writeFileSync(credsPath, content.trim());
-        }
-    
-        logger.info(`✅ Deployment completed for user ${userId}, site "${siteName}"`);
+    const awsCredentialsPath = path.join(os.homedir(), '.aws', 'credentials');
+
+if (fs.existsSync(awsCredentialsPath)) {
+  let credentialsContent = fs.readFileSync(awsCredentialsPath, 'utf-8');
+
+  // Supprimer uniquement le bloc du profil temporaire
+  const regex = new RegExp(`\\[${tempProfile}\\][\\s\\S]*?(?=\\[|$)`, 'g');
+  const updatedContent = credentialsContent.replace(regex, '').trim();
+
+  fs.writeFileSync(awsCredentialsPath, updatedContent);
+  logger.info(`✅ Removed AWS CLI profile: ${tempProfile}`);
+}
   
       
   
