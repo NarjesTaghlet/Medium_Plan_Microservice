@@ -6,7 +6,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   //const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: ['http://localhost:4200','https://davbjddcsuel.cloudfront.net'
+    origin: ['http://localhost:4200','*'
 ] ,// ✅ Autoriser uniquement le frontend Angular
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type,Authorization',
@@ -17,7 +17,7 @@ async function bootstrap() {
   // Express CORS Middleware
 const corsMiddleware = (req, res, next) => {
   const allowedOrigins = [
-  'https://davbjddcsuel.cloudfront.net'
+  '*'
   ];
   
   const origin = req.headers.origin;
